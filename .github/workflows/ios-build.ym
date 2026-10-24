@@ -1,0 +1,40 @@
+
+name: DarkGram iOS Build Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-check:
+    runs-on: macos-15
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Show macOS and Xcode
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcode-select -p
+
+      - name: Check Python
+        run: python3 --version
+
+      - name: Check DarkGram build script
+        run: |
+          test -f build-system/Make/Make.py
+          test -f versions.json || test -f build-system/versions.json
+          echo "Build script found"
+
+      - name: Show build configuration templates
+        run: |
+          find build-system -maxdepth 2 \
+            -name '*configuration*.json' \
+            -print | head -50
